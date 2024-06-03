@@ -27,7 +27,6 @@ public class ImageInfo {
     }
 
     public ImageInfo(InputStream is) throws IOException {
-        width = height = -1;
         int c1 = is.read();
         int c2 = is.read();
         int c3 = is.read();
@@ -66,9 +65,11 @@ public class ImageInfo {
         } else if (c1 == 'R' && c2 == 'I' && c3 == 'F') { // WEBP
             byte[] bytes = new byte[27];
             is.read(bytes);
-            width = (bytes[24] & 0xff) << 8 | (bytes[23] & 0xff);
-            height = (bytes[26] & 0xff) << 8 | (bytes[25] & 0xff);
-            mimeType = "image/webp";
+            if ((char) bytes[5] == 'W' && (char) bytes[6] == 'E' && (char) bytes[7] == 'B' && (char) bytes[8] == 'P') {
+                width = (bytes[24] & 0xff) << 8 | (bytes[23] & 0xff);
+                height = (bytes[26] & 0xff) << 8 | (bytes[25] & 0xff);
+                mimeType = "image/webp";
+            }
         } else {
             int c4 = is.read();
             if ((c1 == 'M' && c2 == 'M' && c3 == 0 && c4 == 42) || (c1 == 'I' && c2 == 'I' && c3 == 42 && c4 == 0)) { // TIFF
