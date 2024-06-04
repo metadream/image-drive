@@ -8,16 +8,23 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 
+import com.arraywork.imagedrive.entity.Catalog;
 import com.arraywork.imagedrive.entity.ImageObject;
 import com.arraywork.imagedrive.entity.PageInfo;
+import com.arraywork.imagedrive.repo.CatalogRepo;
 import com.arraywork.imagedrive.util.AesUtil;
 import com.arraywork.imagedrive.util.ImageInfo;
+import com.arraywork.springforce.util.Pagination;
 import com.arraywork.springforce.util.Strings;
 
 import jakarta.annotation.PostConstruct;
+import jakarta.annotation.Resource;
 import net.coobird.thumbnailator.Thumbnails;
 
 /**
@@ -41,6 +48,9 @@ public class DriveService {
     @Value("${app.pagesize}")
     private int pageSize;
 
+    @Resource
+    private CatalogRepo catalogRepo;
+
     // Init thumbnail folder
     @PostConstruct
     public void init() {
@@ -48,8 +58,15 @@ public class DriveService {
         if (!thumbnail.exists()) thumbnail.mkdirs();
     }
 
+    // List catalog index
+    public Pagination<Catalog> index(Catalog condition, int page) {
+        Pageable pageable = PageRequest.of(page, pageSize);
+        Page<Catalog> pageInfo = catalogRepo.findAll(pageable);
+        return new Pagination<Catalog>(pageInfo);
+    }
+
     // Get image objects by path
-    public PageInfo list(String name, int page) throws IOException {
+    public PageInfo<ImageObject> list(String name, int page) throws IOException {
         File storage = Path.of(storageFolder, name).toFile();
         Assert.isTrue(storage.exists() && storage.isDirectory(), "Path '" + name + "' not found");
 
@@ -57,7 +74,7 @@ public class DriveService {
         files.sort((a, b) -> a.getName().compareTo(b.getName()));
         int totalSize = files.size();
 
-        PageInfo pageInfo = new PageInfo();
+        PageInfo<ImageObject> pageInfo = new PageInfo<>();
         List<ImageObject> imageObjects = new ArrayList<>();
         pageInfo.setList(imageObjects);
         pageInfo.setPageNumber(page);

@@ -11,12 +11,12 @@ import lombok.Data;
  * @since 2024/06/03
  */
 @Data
-public class PageInfo {
+public class PageInfo<T> {
 
     private int pageNumber;
     private int pageSize;
     private int totalSize;
     private int totalPages;
-    private List<ImageObject> list;
+    private List<T> list;
 
 }
