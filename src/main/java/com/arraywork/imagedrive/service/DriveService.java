@@ -4,14 +4,15 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
-import org.springframework.util.StopWatch;
 
 import com.arraywork.imagedrive.entity.ImageObject;
+import com.arraywork.imagedrive.entity.PageInfo;
 import com.arraywork.imagedrive.util.AesUtil;
 import com.arraywork.imagedrive.util.ImageInfo;
 import com.arraywork.springforce.util.Strings;
@@ -37,6 +38,9 @@ public class DriveService {
     @Value("${app.folder.thumbnail}")
     private String thumbnailFolder;
 
+    @Value("${app.pagesize}")
+    private int pageSize;
+
     // Init thumbnail folder
     @PostConstruct
     public void init() {
@@ -45,18 +49,26 @@ public class DriveService {
     }
 
     // Get image objects by path
-    public List<ImageObject> list(String path) throws IOException {
-        File storage = Path.of(storageFolder, path).toFile();
-        Assert.isTrue(storage.exists() && storage.isDirectory(), "Path '" + path + "' not found");
+    public PageInfo list(String name, int page) throws IOException {
+        File storage = Path.of(storageFolder, name).toFile();
+        Assert.isTrue(storage.exists() && storage.isDirectory(), "Path '" + name + "' not found");
 
-        StopWatch stopWatch = new StopWatch();
-        stopWatch.start();
+        List<File> files = Arrays.asList(storage.listFiles());
+        files.sort((a, b) -> a.getName().compareTo(b.getName()));
+        int totalSize = files.size();
 
-        // int total = storage.list().length; // list=null test, start 判断
-        // int index = 0;
-
+        PageInfo pageInfo = new PageInfo();
         List<ImageObject> imageObjects = new ArrayList<>();
-        for (File file : storage.listFiles()) {
+        pageInfo.setList(imageObjects);
+        pageInfo.setPageNumber(page);
+        pageInfo.setPageSize(pageSize);
+        pageInfo.setTotalSize(totalSize);
+        pageInfo.setTotalPages((totalSize + pageSize - 1) / pageSize);
+
+        int start = (page - 1) * pageSize;
+        int end = Math.min(start + pageSize, totalSize);
+        for (int i = start; i < end; i++) {
+            File file = files.get(i);
             if (!file.isFile()) continue;
 
             // Parse image info
@@ -73,10 +85,7 @@ public class DriveService {
                 imageObjects.add(imageObject);
             }
         }
-
-        stopWatch.stop();
-        System.out.println(imageObjects.size() + ", " + stopWatch.getTotalTimeMillis());
-        return imageObjects;
+        return pageInfo;
     }
 
     // Decrypt image path by id

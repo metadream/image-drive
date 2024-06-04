@@ -2,16 +2,14 @@ package com.arraywork.imagedrive.controller;
 
 import java.io.IOException;
 import java.nio.file.Path;
-import java.util.List;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.arraywork.imagedrive.entity.ImageObject;
+import com.arraywork.imagedrive.entity.PageInfo;
 import com.arraywork.imagedrive.service.DriveService;
 import com.arraywork.springforce.StaticResourceHandler;
-import com.arraywork.springforce.util.HttpUtils;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,11 +29,16 @@ public class DriveController {
     @Resource
     private DriveService driveService;
 
-    // List image objects by path
-    @GetMapping("/**/")
-    public List<ImageObject> list(HttpServletRequest request) throws IOException {
-        String path = HttpUtils.getWildcard(request, "");
-        return driveService.list(path);
+    // List image objects by directory name
+    @GetMapping("/{name}/")
+    public PageInfo list(@PathVariable String name) throws IOException {
+        return driveService.list(name, 1);
+    }
+
+    // List image objects by directory name
+    @GetMapping("/{name}/{page:[1-9]\\d*}")
+    public PageInfo list(@PathVariable String name, @PathVariable int page) throws IOException {
+        return driveService.list(name, page);
     }
 
     // Serve image content by id
