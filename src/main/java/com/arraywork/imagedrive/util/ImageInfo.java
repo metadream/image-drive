@@ -1,4 +1,4 @@
-package com.arraywork.imagedrive;
+package com.arraywork.imagedrive.util;
 
 import java.io.ByteArrayInputStream;
 import java.io.File;

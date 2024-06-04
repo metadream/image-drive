@@ -1,4 +1,4 @@
-package com.arraywork.imagedrive;
+package com.arraywork.imagedrive.service;
 
 import java.io.File;
 import java.io.IOException;
@@ -9,7 +9,11 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.util.StopWatch;
 
+import com.arraywork.imagedrive.entity.ImageObject;
+import com.arraywork.imagedrive.util.AesUtil;
+import com.arraywork.imagedrive.util.ImageInfo;
 import com.arraywork.springforce.util.Strings;
 
 import jakarta.annotation.PostConstruct;
@@ -43,7 +47,13 @@ public class DriveService {
     // Get image objects by path
     public List<ImageObject> list(String path) throws IOException {
         File storage = Path.of(storageFolder, path).toFile();
-        Assert.isTrue(storage.isDirectory(), "Path '" + path + "' not found");
+        Assert.isTrue(storage.exists() && storage.isDirectory(), "Path '" + path + "' not found");
+
+        StopWatch stopWatch = new StopWatch();
+        stopWatch.start();
+
+        // int total = storage.list().length; // list=null test, start 判断
+        // int index = 0;
 
         List<ImageObject> imageObjects = new ArrayList<>();
         for (File file : storage.listFiles()) {
@@ -56,12 +66,16 @@ public class DriveService {
                 imageObject.setId(AesUtil.encrypt(file.getPath(), secretKey));
                 imageObject.setName(file.getName());
                 imageObject.setSize(file.length());
+                imageObject.setLastModified(file.lastModified());
                 imageObject.setMimeType(imageInfo.getMimeType());
                 imageObject.setWidth(imageInfo.getWidth());
                 imageObject.setHeight(imageInfo.getHeight());
                 imageObjects.add(imageObject);
             }
         }
+
+        stopWatch.stop();
+        System.out.println(imageObjects.size() + ", " + stopWatch.getTotalTimeMillis());
         return imageObjects;
     }
 

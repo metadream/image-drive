@@ -1,4 +1,4 @@
-package com.arraywork.imagedrive;
+package com.arraywork.imagedrive.controller;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.arraywork.imagedrive.entity.ImageObject;
+import com.arraywork.imagedrive.service.DriveService;
 import com.arraywork.springforce.StaticResourceHandler;
 import com.arraywork.springforce.util.HttpUtils;
 
@@ -29,7 +31,7 @@ public class DriveController {
     @Resource
     private DriveService driveService;
 
-    // list image objects by path
+    // List image objects by path
     @GetMapping("/**/")
     public List<ImageObject> list(HttpServletRequest request) throws IOException {
         String path = HttpUtils.getWildcard(request, "");

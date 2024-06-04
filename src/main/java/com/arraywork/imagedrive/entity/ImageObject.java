@@ -1,4 +1,4 @@
-package com.arraywork.imagedrive;
+package com.arraywork.imagedrive.entity;
 
 import lombok.Data;
 
@@ -17,5 +17,6 @@ public class ImageObject {
     private int width;
     private int height;
     private long size;
+    private long lastModified;
 
 }

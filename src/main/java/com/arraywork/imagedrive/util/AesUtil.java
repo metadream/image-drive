@@ -1,4 +1,4 @@
-package com.arraywork.imagedrive;
+package com.arraywork.imagedrive.util;
 
 import java.math.BigInteger;
 import java.nio.charset.StandardCharsets;
