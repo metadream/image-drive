@@ -3,7 +3,6 @@ package com.arraywork.imagedrive;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.jdbc.DataSourceAutoConfiguration;
 
 import com.arraywork.springforce.BaseApplication;
 
@@ -15,7 +14,7 @@ import jakarta.annotation.PostConstruct;
  * @copyright ArrayWork Inc.
  * @since 2024/06/03
  */
-@SpringBootApplication(exclude = DataSourceAutoConfiguration.class)
+@SpringBootApplication
 public class DriveApplication extends BaseApplication {
 
     @Value("${app.folder.storage}")
