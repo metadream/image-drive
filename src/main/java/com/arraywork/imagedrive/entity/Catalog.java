@@ -1,11 +1,11 @@
 package com.arraywork.imagedrive.entity;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
 import org.hibernate.annotations.GenericGenerator;
-import org.hibernate.annotations.UpdateTimestamp;
 
 import com.arraywork.springforce.util.KeyGenerator;
+import com.arraywork.springforce.util.Validator;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
@@ -13,6 +13,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
@@ -32,36 +33,31 @@ public class Catalog {
     @GeneratedValue(generator = "nano-id-generator")
     private String id;
 
-    // 编号
     @Column(unique = true)
-    @NotBlank(message = "编号不能为空")
-    @Size(max = 20, message = "编号不能超过{max}个字符")
+    @NotBlank(message = "Catalog code cannot be blank")
+    @Size(max = 20, message = "Catalog code cannot exceed {max} characters")
     private String code;
 
-    // 标题
-    @NotBlank(message = "标题不能为空")
-    @Size(max = 255, message = "标题不能超过 {max} 个字符")
+    @NotBlank(message = "Catalog title cannot be blank", groups = Validator.Update.class)
+    @Size(max = 255, message = "Catalog title cannot exceed {max} characters")
     private String title;
 
-    // 工作室
-    @Column(length = 20)
-    private String studio;
-
-    // 分级
+    @NotNull(message = "Rating cannot be null", groups = Validator.Update.class)
     @Convert(converter = Rating.Converter.class)
     private Rating rating;
 
-    // 模特
+    @NotNull(message = "Issue date cannot be null", groups = Validator.Update.class)
+    private LocalDate issueDate;
+
+    @Size(max = 20, message = "Studio cannot exceed {max} characters")
+    private String studio;
+
     @Column(columnDefinition = "JSON DEFAULT NULL")
     private String[] models;
 
-    // 标签
     @Column(columnDefinition = "JSON DEFAULT NULL")
     private String[] tags;
 
     private boolean starred;
-
-    @UpdateTimestamp
-    private LocalDateTime lastModified;
 
 }
