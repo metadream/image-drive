@@ -17,8 +17,8 @@ import jakarta.annotation.PostConstruct;
 @SpringBootApplication
 public class DriveApplication extends BaseApplication {
 
-    @Value("${app.folder.storage}")
-    private String storageFolder;
+    @Value("${app.dir.image-lib}")
+    private String imageLib;
 
     public static void main(String[] args) {
         SpringApplication.run(DriveApplication.class, args);
@@ -26,7 +26,7 @@ public class DriveApplication extends BaseApplication {
 
     @PostConstruct
     public void startMonitor() throws Exception {
-        DirectoryMonitor monitor = new DirectoryMonitor(storageFolder, 3000);
+        DirectoryMonitor monitor = new DirectoryMonitor(imageLib, 3000);
         monitor.start();
     }
 

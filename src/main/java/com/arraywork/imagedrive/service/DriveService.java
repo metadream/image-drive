@@ -37,14 +37,14 @@ import net.coobird.thumbnailator.Thumbnails;
 @Service
 public class DriveService {
 
-    @Value("${app.secret-key}")
-    private String secretKey;
+    @Value("${app.key.aes}")
+    private String aesKey;
 
-    @Value("${app.folder.storage}")
-    private String storageFolder;
+    @Value("${app.dir.image-lib}")
+    private String imageLib;
 
-    @Value("${app.folder.thumbnail}")
-    private String thumbnailFolder;
+    @Value("${app.dir.thumbnail}")
+    private String thumbDir;
 
     @Value("${app.pagesize}")
     private int pageSize;
@@ -55,8 +55,8 @@ public class DriveService {
     // Init thumbnail folder
     @PostConstruct
     public void init() {
-        File thumbnail = new File(thumbnailFolder);
-        if (!thumbnail.exists()) thumbnail.mkdirs();
+        File dir = new File(thumbDir);
+        if (!dir.exists()) dir.mkdirs();
     }
 
     // List catalog index
@@ -68,7 +68,7 @@ public class DriveService {
 
     // Get image objects by path
     public PageInfo<ImageObject> listImages(String name, int page) throws IOException {
-        File storage = Path.of(storageFolder, name).toFile();
+        File storage = Path.of(imageLib, name).toFile();
         Assert.isTrue(storage.exists() && storage.isDirectory(), "Path '" + name + "' not found");
 
         List<File> files = Arrays.asList(storage.listFiles());
@@ -93,7 +93,7 @@ public class DriveService {
             ImageInfo imageInfo = new ImageInfo(file);
             if (imageInfo.getMimeType() != null) {
                 ImageObject imageObject = new ImageObject();
-                imageObject.setId(AesUtil.encrypt(file.getPath(), secretKey));
+                imageObject.setId(AesUtil.encrypt(file.getPath(), aesKey));
                 imageObject.setName(file.getName());
                 imageObject.setSize(file.length());
                 imageObject.setLastModified(file.lastModified());
@@ -108,13 +108,13 @@ public class DriveService {
 
     // Decrypt image path by id
     public Path getImagePath(String id, String s) throws IOException {
-        String origiPath = AesUtil.decrypt(id, secretKey);
+        String origiPath = AesUtil.decrypt(id, aesKey);
         Assert.notNull(origiPath, "Resource '" + id + "' not found");
 
         // Generate thumbnail
         if (Strings.isInteger(s)) {
             int size = Integer.parseInt(s);
-            Path thumbPath = Path.of(thumbnailFolder, id + "_" + size + ".jpg");
+            Path thumbPath = Path.of(thumbDir, id + "_" + size + ".jpg");
             if (!thumbPath.toFile().exists()) {
                 Thumbnails.of(origiPath).size(size, size).outputQuality(0.9).toFile(thumbPath.toString());
             }
