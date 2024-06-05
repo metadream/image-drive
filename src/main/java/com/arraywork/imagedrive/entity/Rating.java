@@ -14,17 +14,16 @@ import lombok.Getter;
  */
 @AllArgsConstructor
 @Getter
-public enum Rating implements GenericEnum<Integer> {
+public enum Rating implements GenericEnum<String> {
 
-    GENERAL(1, "G", "General Audiences"),
-    GUIDANCE(2, "P", "Parental Guidance Suggested"),
-    RESTRICTED(3, "R", "Restricted"),
-    ADULT(4, "A", "Adults Only");
+    GENERAL("G", "General Audiences"),
+    GUIDANCE("P", "Parental Guidance Suggested"),
+    RESTRICTED("R", "Restricted"),
+    ADULT("A", "Adults Only");
 
-    private final Integer code;
-    private final String abbr;
+    private final String code;
     private final String label;
 
-    public static class Converter extends GenericEnumConverter<Rating, Integer> {}
+    public static class Converter extends GenericEnumConverter<Rating, String> {}
 
 }
