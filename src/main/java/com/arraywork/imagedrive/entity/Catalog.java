@@ -3,15 +3,18 @@ package com.arraywork.imagedrive.entity;
 import java.time.LocalDate;
 
 import org.hibernate.annotations.GenericGenerator;
+import org.hibernate.annotations.Type;
 
 import com.arraywork.springforce.util.KeyGenerator;
 import com.arraywork.springforce.util.Validator;
 
+import io.hypersistence.utils.hibernate.type.json.JsonStringType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.Transient;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -52,12 +55,21 @@ public class Catalog {
     @Size(max = 20, message = "Studio cannot exceed {max} characters")
     private String studio;
 
+    @Type(JsonStringType.class)
     @Column(columnDefinition = "JSON DEFAULT NULL")
     private String[] models;
 
+    @Type(JsonStringType.class)
+    @Column(columnDefinition = "JSON DEFAULT NULL")
+    private String[] locations;
+
+    @Type(JsonStringType.class)
     @Column(columnDefinition = "JSON DEFAULT NULL")
     private String[] tags;
 
     private boolean starred;
+
+    @Transient
+    private String keyword;
 
 }

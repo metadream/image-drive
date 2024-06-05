@@ -18,6 +18,7 @@ import com.arraywork.imagedrive.entity.Catalog;
 import com.arraywork.imagedrive.entity.ImageObject;
 import com.arraywork.imagedrive.entity.PageInfo;
 import com.arraywork.imagedrive.repo.CatalogRepo;
+import com.arraywork.imagedrive.repo.CatalogSpec;
 import com.arraywork.imagedrive.util.AesUtil;
 import com.arraywork.imagedrive.util.ImageInfo;
 import com.arraywork.springforce.util.Pagination;
@@ -60,8 +61,8 @@ public class DriveService {
 
     // List catalog index
     public Pagination<Catalog> index(Catalog condition, int page) {
-        Pageable pageable = PageRequest.of(page, pageSize);
-        Page<Catalog> pageInfo = catalogRepo.findAll(pageable);
+        Pageable pageable = PageRequest.of(page - 1, pageSize);
+        Page<Catalog> pageInfo = catalogRepo.findAll(new CatalogSpec(condition), pageable);
         return new Pagination<Catalog>(pageInfo);
     }
 
