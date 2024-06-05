@@ -60,14 +60,14 @@ public class DriveService {
     }
 
     // List catalog index
-    public Pagination<Catalog> index(Catalog condition, int page) {
+    public Pagination<Catalog> listCatalogs(Catalog condition, int page) {
         Pageable pageable = PageRequest.of(page - 1, pageSize);
         Page<Catalog> pageInfo = catalogRepo.findAll(new CatalogSpec(condition), pageable);
         return new Pagination<Catalog>(pageInfo);
     }
 
     // Get image objects by path
-    public PageInfo<ImageObject> list(String name, int page) throws IOException {
+    public PageInfo<ImageObject> listImages(String name, int page) throws IOException {
         File storage = Path.of(storageFolder, name).toFile();
         Assert.isTrue(storage.exists() && storage.isDirectory(), "Path '" + name + "' not found");
 
@@ -107,9 +107,9 @@ public class DriveService {
     }
 
     // Decrypt image path by id
-    public Path getPath(String id, String s) throws IOException {
+    public Path getImagePath(String id, String s) throws IOException {
         String origiPath = AesUtil.decrypt(id, secretKey);
-        Assert.notNull(origiPath, "Image '" + id + "' not found");
+        Assert.notNull(origiPath, "Resource '" + id + "' not found");
 
         // Generate thumbnail
         if (Strings.isInteger(s)) {
