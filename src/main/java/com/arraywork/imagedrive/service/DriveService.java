@@ -1,11 +1,14 @@
 package com.arraywork.imagedrive.service;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.imageio.ImageIO;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -21,12 +24,12 @@ import com.arraywork.imagedrive.repo.CatalogRepo;
 import com.arraywork.imagedrive.repo.CatalogSpec;
 import com.arraywork.imagedrive.util.AesUtil;
 import com.arraywork.imagedrive.util.ImageInfo;
+import com.arraywork.imagedrive.util.ImageUtil;
 import com.arraywork.springforce.util.Pagination;
 import com.arraywork.springforce.util.Strings;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
-import net.coobird.thumbnailator.Thumbnails;
 
 /**
  * Drive Service
@@ -108,19 +111,23 @@ public class DriveService {
 
     // Decrypt image path by id
     public Path getImagePath(String id, String s) throws IOException {
-        String origiPath = AesUtil.decrypt(id, aesKey);
-        Assert.notNull(origiPath, "Resource '" + id + "' not found");
+        String path = AesUtil.decrypt(id, aesKey);
+        Assert.notNull(path, "Resource '" + id + "' not found");
+        Path srcPath = Path.of(path);
 
         // Generate thumbnail
         if (Strings.isInteger(s)) {
             int size = Integer.parseInt(s);
             Path thumbPath = Path.of(thumbDir, id + "_" + size + ".jpg");
-            if (!thumbPath.toFile().exists()) {
-                Thumbnails.of(origiPath).size(size, size).outputQuality(0.9).toFile(thumbPath.toString());
+            File thumbFile = thumbPath.toFile();
+
+            if (!thumbFile.exists()) {
+                BufferedImage srcImage = ImageIO.read(srcPath.toFile());
+                ImageIO.write(ImageUtil.resize(srcImage, size), "jpg", thumbFile);
             }
             return thumbPath;
         }
-        return Path.of(origiPath);
+        return srcPath;
     }
 
 }
