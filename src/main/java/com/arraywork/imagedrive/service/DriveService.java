@@ -5,7 +5,6 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import javax.imageio.ImageIO;
@@ -25,8 +24,9 @@ import com.arraywork.imagedrive.repo.CatalogSpec;
 import com.arraywork.imagedrive.util.AesUtil;
 import com.arraywork.imagedrive.util.ImageInfo;
 import com.arraywork.imagedrive.util.ImageUtil;
+import com.arraywork.springforce.util.Arrays;
+import com.arraywork.springforce.util.Files;
 import com.arraywork.springforce.util.Pagination;
-import com.arraywork.springforce.util.Strings;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
@@ -69,13 +69,9 @@ public class DriveService {
         return new Pagination<Catalog>(pageInfo);
     }
 
-    // Get image objects by path
-    public PageInfo<ImageObject> listImages(String name, int page) throws IOException {
-        File storage = Path.of(imageLib, name).toFile();
-        Assert.isTrue(storage.exists() && storage.isDirectory(), "Path '" + name + "' not found");
-
-        List<File> files = Arrays.asList(storage.listFiles());
-        files.sort((a, b) -> a.getName().compareTo(b.getName()));
+    // Get image objects by catalog
+    public PageInfo<ImageObject> listImages(String catalog, int page) throws IOException {
+        List<File> files = listFiles(catalog);
         int totalSize = files.size();
 
         PageInfo<ImageObject> pageInfo = new PageInfo<>();
@@ -90,10 +86,8 @@ public class DriveService {
         int end = Math.min(start + pageSize, totalSize);
         for (int i = start; i < end; i++) {
             File file = files.get(i);
-            if (!file.isFile()) continue;
-
-            // Parse image info
             ImageInfo imageInfo = new ImageInfo(file);
+
             if (imageInfo.getMimeType() != null) {
                 ImageObject imageObject = new ImageObject();
                 imageObject.setId(AesUtil.encrypt(file.getPath(), aesKey));
@@ -109,25 +103,46 @@ public class DriveService {
         return pageInfo;
     }
 
+    // Get catalog poster
+    public Path getPosterPath(String catalog) throws IOException {
+        List<File> files = listFiles(catalog);
+        Assert.isTrue(!files.isEmpty(), "Catalog poster not found");
+        Path srcPath = Path.of(files.get(0).getPath());
+        return createThumbnail(srcPath, 480);
+    }
+
     // Decrypt image path by id
-    public Path getImagePath(String id, String s) throws IOException {
+    public Path getImagePath(String id, int size) throws IOException {
         String path = AesUtil.decrypt(id, aesKey);
         Assert.notNull(path, "Resource '" + id + "' not found");
         Path srcPath = Path.of(path);
+        return size > 0 ? createThumbnail(srcPath, size) : srcPath;
+    }
 
-        // Generate thumbnail
-        if (Strings.isInteger(s)) {
-            int size = Integer.parseInt(s);
-            Path thumbPath = Path.of(thumbDir, id + "_" + size + ".jpg");
-            File thumbFile = thumbPath.toFile();
+    // Create image thumbnail
+    private Path createThumbnail(Path srcPath, int size) throws IOException {
+        File srcFile = srcPath.toFile();
+        Path thumbPath = Path.of(thumbDir, Files.getName(srcFile.getName()) + "_" + size + ".jpg");
+        File thumbFile = thumbPath.toFile();
 
-            if (!thumbFile.exists()) {
-                BufferedImage srcImage = ImageIO.read(srcPath.toFile());
-                ImageIO.write(ImageUtil.resize(srcImage, size), "jpg", thumbFile);
-            }
-            return thumbPath;
+        if (!thumbFile.exists()) {
+            BufferedImage srcImage = ImageIO.read(srcFile);
+            ImageIO.write(ImageUtil.resize(srcImage, size), "jpg", thumbFile);
         }
-        return srcPath;
+        return thumbPath;
+    }
+
+    // List image files in catalog
+    private List<File> listFiles(String catalog) {
+        File dir = Path.of(imageLib, catalog).toFile();
+        Assert.isTrue(dir.exists() && dir.isDirectory(), "Catalog '" + catalog + "' not found");
+
+        String pattern = ".+\\.(jpg|jpeg|png|gif|bmp|webp|tiff)$";
+        List<File> files = Arrays.filter(dir.listFiles(), v -> v.isFile() && v.getName().matches(pattern));
+        if (!files.isEmpty()) {
+            files.sort((a, b) -> a.getName().compareTo(b.getName()));
+        }
+        return files;
     }
 
 }

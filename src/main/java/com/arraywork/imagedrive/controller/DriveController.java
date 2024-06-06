@@ -12,7 +12,9 @@ import com.arraywork.imagedrive.entity.ImageObject;
 import com.arraywork.imagedrive.entity.PageInfo;
 import com.arraywork.imagedrive.service.DriveService;
 import com.arraywork.springforce.StaticResourceHandler;
+import com.arraywork.springforce.util.Assert;
 import com.arraywork.springforce.util.Pagination;
+import com.arraywork.springforce.util.Strings;
 
 import jakarta.annotation.Resource;
 import jakarta.servlet.http.HttpServletRequest;
@@ -39,18 +41,27 @@ public class DriveController {
         return driveService.listCatalogs(condition, Integer.parseInt(page));
     }
 
-    // List image objects by directory name
-    @GetMapping({ "/{name}/", "/{name}/{page:[1-9]\\d*}" })
-    public PageInfo<ImageObject> list(@PathVariable String name, @PathVariable(required = false) Integer page)
+    // List image objects by catalog
+    @GetMapping({ "/{catalog}/", "/{catalog}/{page:[1-9]\\d*}" })
+    public PageInfo<ImageObject> list(@PathVariable String catalog, @PathVariable(required = false) Integer page)
         throws IOException {
-        return driveService.listImages(name, page != null ? page : 1);
+        return driveService.listImages(catalog, page != null ? page : 1);
+    }
+
+    // Serve poster image by catalog
+    @GetMapping("/{catalog}/poster.jpg")
+    public void serve(HttpServletRequest request, HttpServletResponse response,
+        @PathVariable String catalog) throws IOException {
+        Path path = driveService.getPosterPath(catalog);
+        resourceHandler.serve(path, request, response);
     }
 
     // Serve image content by id
     @GetMapping("/{id}")
     public void serve(HttpServletRequest request, HttpServletResponse response,
         @PathVariable String id, String s) throws IOException {
-        Path path = driveService.getImagePath(id, s);
+        Assert.isTrue(Strings.isInteger(s), "Parameter must be a integer");
+        Path path = driveService.getImagePath(id, Integer.parseInt(s));
         resourceHandler.serve(path, request, response);
     }
 
