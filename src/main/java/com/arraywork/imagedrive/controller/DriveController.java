@@ -5,6 +5,7 @@ import java.nio.file.Path;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.arraywork.imagedrive.entity.Catalog;
@@ -12,7 +13,6 @@ import com.arraywork.imagedrive.entity.ImageObject;
 import com.arraywork.imagedrive.entity.PageInfo;
 import com.arraywork.imagedrive.service.DriveService;
 import com.arraywork.springforce.StaticResourceHandler;
-import com.arraywork.springforce.util.Assert;
 import com.arraywork.springforce.util.Pagination;
 import com.arraywork.springforce.util.Strings;
 
@@ -34,34 +34,34 @@ public class DriveController {
     @Resource
     private DriveService driveService;
 
-    // List catalogs index
+    // List catalogs
     @GetMapping("/")
-    public Pagination<Catalog> index(Catalog condition, String page) throws IOException {
+    public Pagination<Catalog> listCatalogs(Catalog condition, String page) throws IOException {
         page = page != null && page.matches("[1-9]\\d*") ? page : "1";
         return driveService.listCatalogs(condition, Integer.parseInt(page));
     }
 
-    // List image objects by catalog
+    // List images
     @GetMapping({ "/{catalog}/", "/{catalog}/{page:[1-9]\\d*}" })
-    public PageInfo<ImageObject> list(@PathVariable String catalog, @PathVariable(required = false) Integer page)
+    public PageInfo<ImageObject> listImages(@PathVariable String catalog, @PathVariable(required = false) Integer page)
         throws IOException {
         return driveService.listImages(catalog, page != null ? page : 1);
     }
 
-    // Serve poster image by catalog
+    // Serve poster image
     @GetMapping("/{catalog}/poster.jpg")
-    public void serve(HttpServletRequest request, HttpServletResponse response,
-        @PathVariable String catalog) throws IOException {
+    public void serve(HttpServletRequest request, HttpServletResponse response, @PathVariable String catalog)
+        throws IOException {
         Path path = driveService.getPosterPath(catalog);
         resourceHandler.serve(path, request, response);
     }
 
-    // Serve image content by id
+    // Serve image
     @GetMapping("/{id}")
     public void serve(HttpServletRequest request, HttpServletResponse response,
-        @PathVariable String id, String s) throws IOException {
-        Assert.isTrue(Strings.isInteger(s), "Parameter must be a integer");
-        Path path = driveService.getImagePath(id, Integer.parseInt(s));
+        @PathVariable String id, @RequestParam(required = false) String s) throws IOException {
+        int size = Strings.isInteger(s) ? Integer.parseInt(s) : 0;
+        Path path = driveService.getImagePath(id, size);
         resourceHandler.serve(path, request, response);
     }
 

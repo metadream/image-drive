@@ -17,7 +17,7 @@ import jakarta.annotation.PostConstruct;
 @SpringBootApplication
 public class DriveApplication extends BaseApplication {
 
-    @Value("${app.dir.image-lib}")
+    @Value("${app.path.image-lib}")
     private String imageLib;
 
     public static void main(String[] args) {

@@ -25,7 +25,6 @@ import com.arraywork.imagedrive.util.AesUtil;
 import com.arraywork.imagedrive.util.ImageInfo;
 import com.arraywork.imagedrive.util.ImageUtil;
 import com.arraywork.springforce.util.Arrays;
-import com.arraywork.springforce.util.Files;
 import com.arraywork.springforce.util.Pagination;
 
 import jakarta.annotation.PostConstruct;
@@ -43,10 +42,10 @@ public class DriveService {
     @Value("${app.key.aes}")
     private String aesKey;
 
-    @Value("${app.dir.image-lib}")
+    @Value("${app.path.image-lib}")
     private String imageLib;
 
-    @Value("${app.dir.thumbnail}")
+    @Value("${app.path.thumbnail}")
     private String thumbDir;
 
     @Value("${app.pagesize}")
@@ -55,24 +54,26 @@ public class DriveService {
     @Resource
     private CatalogRepo catalogRepo;
 
-    // Init thumbnail folder
+    // Initialize thumbnail directory
     @PostConstruct
     public void init() {
         File dir = new File(thumbDir);
         if (!dir.exists()) dir.mkdirs();
     }
 
-    // List catalog index
+    // List catalogs
     public Pagination<Catalog> listCatalogs(Catalog condition, int page) {
         Pageable pageable = PageRequest.of(page - 1, pageSize);
         Page<Catalog> pageInfo = catalogRepo.findAll(new CatalogSpec(condition), pageable);
         return new Pagination<Catalog>(pageInfo);
     }
 
-    // Get image objects by catalog
+    // List images
     public PageInfo<ImageObject> listImages(String catalog, int page) throws IOException {
         List<File> files = listFiles(catalog);
         int totalSize = files.size();
+        int start = (page - 1) * pageSize;
+        int end = Math.min(start + pageSize, totalSize);
 
         PageInfo<ImageObject> pageInfo = new PageInfo<>();
         List<ImageObject> imageObjects = new ArrayList<>();
@@ -82,8 +83,6 @@ public class DriveService {
         pageInfo.setTotalSize(totalSize);
         pageInfo.setTotalPages((totalSize + pageSize - 1) / pageSize);
 
-        int start = (page - 1) * pageSize;
-        int end = Math.min(start + pageSize, totalSize);
         for (int i = start; i < end; i++) {
             File file = files.get(i);
             ImageInfo imageInfo = new ImageInfo(file);
@@ -103,36 +102,34 @@ public class DriveService {
         return pageInfo;
     }
 
-    // Get catalog poster
+    // Get poster path
     public Path getPosterPath(String catalog) throws IOException {
         List<File> files = listFiles(catalog);
         Assert.isTrue(!files.isEmpty(), "Catalog poster not found");
-        Path srcPath = Path.of(files.get(0).getPath());
-        return createThumbnail(srcPath, 480);
+        String id = AesUtil.encrypt(files.get(0).getPath(), aesKey);
+        return getImagePath(id, 480);
     }
 
-    // Decrypt image path by id
+    // Get image path
     public Path getImagePath(String id, int size) throws IOException {
         String path = AesUtil.decrypt(id, aesKey);
         Assert.notNull(path, "Resource '" + id + "' not found");
-        Path srcPath = Path.of(path);
-        return size > 0 ? createThumbnail(srcPath, size) : srcPath;
-    }
 
-    // Create image thumbnail
-    private Path createThumbnail(Path srcPath, int size) throws IOException {
-        File srcFile = srcPath.toFile();
-        Path thumbPath = Path.of(thumbDir, Files.getName(srcFile.getName()) + "_" + size + ".jpg");
+        Path srcPath = Path.of(path);
+        Path thumbPath = Path.of(thumbDir, id + "_" + size + ".jpg");
         File thumbFile = thumbPath.toFile();
 
-        if (!thumbFile.exists()) {
-            BufferedImage srcImage = ImageIO.read(srcFile);
-            ImageIO.write(ImageUtil.resize(srcImage, size), "jpg", thumbFile);
+        if (size > 0) {
+            if (!thumbFile.exists()) {
+                BufferedImage srcImage = ImageIO.read(srcPath.toFile());
+                ImageIO.write(ImageUtil.resize(srcImage, size), "jpg", thumbFile);
+            }
+            return thumbPath;
         }
-        return thumbPath;
+        return srcPath;
     }
 
-    // List image files in catalog
+    // List files
     private List<File> listFiles(String catalog) {
         File dir = Path.of(imageLib, catalog).toFile();
         Assert.isTrue(dir.exists() && dir.isDirectory(), "Catalog '" + catalog + "' not found");

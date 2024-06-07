@@ -7,6 +7,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
 
 import javax.crypto.Cipher;
+import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 /**
@@ -25,9 +26,8 @@ public class AesUtil {
     // Encrypt
     public static String encrypt(String content, String key) {
         try {
-            key = md5(key).substring(0, 16);
             Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
-            cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(key.getBytes(), "AES"));
+            cipher.init(Cipher.ENCRYPT_MODE, generateKey(key));
             byte[] bytes = cipher.doFinal(content.getBytes(StandardCharsets.UTF_8));
             return base64Encoder.encodeToString(bytes);
         } catch (Exception e) {
@@ -38,9 +38,8 @@ public class AesUtil {
     // Decrypt
     public static String decrypt(String content, String key) {
         try {
-            key = md5(key).substring(0, 16);
             Cipher cipher = Cipher.getInstance(CIPHER_ALGORITHM);
-            cipher.init(Cipher.DECRYPT_MODE, new SecretKeySpec(key.getBytes(), "AES"));
+            cipher.init(Cipher.DECRYPT_MODE, generateKey(key));
             byte[] encryptBytes = base64Decoder.decode(content);
             byte[] decryptBytes = cipher.doFinal(encryptBytes);
             return new String(decryptBytes);
@@ -49,11 +48,12 @@ public class AesUtil {
         }
     }
 
-    // MD5
-    private static String md5(String content) throws NoSuchAlgorithmException {
+    // Generate key
+    private static SecretKey generateKey(String key) throws NoSuchAlgorithmException {
         MessageDigest md = MessageDigest.getInstance("MD5");
-        md.update(content.getBytes());
-        return new BigInteger(1, md.digest()).toString(16);
+        md.update(key.getBytes());
+        key = new BigInteger(1, md.digest()).toString(16);
+        return new SecretKeySpec(key.getBytes(), "AES");
     }
 
 }
