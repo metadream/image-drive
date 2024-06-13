@@ -1,6 +1,5 @@
 package com.arraywork.imagedrive.service;
 
-import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -15,6 +14,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
+import org.springframework.util.StopWatch;
 
 import com.arraywork.imagedrive.entity.Catalog;
 import com.arraywork.imagedrive.entity.ImageObject;
@@ -29,6 +29,7 @@ import com.arraywork.springforce.util.Pagination;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.Resource;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * Drive Service
@@ -37,6 +38,7 @@ import jakarta.annotation.Resource;
  * @since 2024/06/03
  */
 @Service
+@Slf4j
 public class DriveService {
 
     @Value("${app.key.aes}")
@@ -83,9 +85,14 @@ public class DriveService {
         pageInfo.setTotalSize(totalSize);
         pageInfo.setTotalPages((totalSize + pageSize - 1) / pageSize);
 
+        StopWatch sw = new StopWatch();
         for (int i = start; i < end; i++) {
             File file = files.get(i);
+
+            sw.start();
             ImageInfo imageInfo = new ImageInfo(file);
+            sw.stop();
+            log.info("Get image info [{}] {}: {}ms", i, file.length(), sw.lastTaskInfo().getTimeMillis());
 
             if (imageInfo.getMimeType() != null) {
                 ImageObject imageObject = new ImageObject();
@@ -99,6 +106,7 @@ public class DriveService {
                 imageObjects.add(imageObject);
             }
         }
+        log.info("Total time [listImages]: {}ms", sw.getTotalTimeMillis());
         return pageInfo;
     }
 
@@ -121,8 +129,11 @@ public class DriveService {
 
         if (size > 0) {
             if (!thumbFile.exists()) {
-                BufferedImage srcImage = ImageIO.read(srcPath.toFile());
-                ImageIO.write(ImageUtil.resize(srcImage, size), "jpg", thumbFile);
+                StopWatch sw = new StopWatch();
+                sw.start();
+                ImageIO.write(ImageUtil.resize(path, size), "jpg", thumbFile);
+                sw.stop();
+                log.info("Resize image: {}ms", sw.getTotalTimeMillis());
             }
             return thumbPath;
         }
