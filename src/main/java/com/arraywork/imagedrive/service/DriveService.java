@@ -142,7 +142,8 @@ public class DriveService {
                 BufferedImage thumbImage = ImageUtil.resizeByThumbnailator(srcImage, size);
                 ImageIO.write(thumbImage, "jpg", thumbFile);
                 sw.stop();
-                log.info("Resize image: {}ms", sw.getTotalTimeMillis());
+                log.info("Resize image: {}ms", sw.lastTaskInfo().getTimeMillis());
+                log.info("Total times: {}ms", sw.getTotalTimeMillis());
             }
             return thumbPath;
         }
