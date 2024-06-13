@@ -25,6 +25,7 @@ import com.arraywork.imagedrive.util.AesUtil;
 import com.arraywork.imagedrive.util.ImageInfo;
 import com.arraywork.imagedrive.util.ImageUtil;
 import com.arraywork.springforce.util.Arrays;
+import com.arraywork.springforce.util.Numbers;
 import com.arraywork.springforce.util.Pagination;
 
 import jakarta.annotation.PostConstruct;
@@ -92,7 +93,8 @@ public class DriveService {
             sw.start();
             ImageInfo imageInfo = new ImageInfo(file);
             sw.stop();
-            log.info("Get image info [{}] {}: {}ms", i, file.length(), sw.lastTaskInfo().getTimeMillis());
+            log.info("Get image info [{}]: {}, {} ms", i, Numbers.formatBytes(file.length()),
+                sw.lastTaskInfo().getTimeMillis());
 
             if (imageInfo.getMimeType() != null) {
                 ImageObject imageObject = new ImageObject();
@@ -145,7 +147,7 @@ public class DriveService {
         File dir = Path.of(imageLib, catalog).toFile();
         Assert.isTrue(dir.exists() && dir.isDirectory(), "Catalog '" + catalog + "' not found");
 
-        String pattern = ".+\\.(jpg|jpeg|png|gif|bmp|webp|tiff)$";
+        String pattern = "(?i).+\\.(jpg|jpeg|png|gif|bmp|webp|tiff)$";
         List<File> files = Arrays.filter(dir.listFiles(), v -> v.isFile() && v.getName().matches(pattern));
         if (!files.isEmpty()) {
             files.sort((a, b) -> a.getName().compareTo(b.getName()));
