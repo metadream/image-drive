@@ -1,5 +1,6 @@
 package com.arraywork.imagedrive.service;
 
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -133,7 +134,13 @@ public class DriveService {
             if (!thumbFile.exists()) {
                 StopWatch sw = new StopWatch();
                 sw.start();
-                ImageIO.write(ImageUtil.resize(path, size), "jpg", thumbFile);
+                BufferedImage srcImage = ImageIO.read(srcPath.toFile());
+                sw.stop();
+                log.info("Read image: {}ms", sw.lastTaskInfo().getTimeMillis());
+
+                sw.start();
+                BufferedImage thumbImage = ImageUtil.resizeByThumbnailator(srcImage, size);
+                ImageIO.write(thumbImage, "jpg", thumbFile);
                 sw.stop();
                 log.info("Resize image: {}ms", sw.getTotalTimeMillis());
             }

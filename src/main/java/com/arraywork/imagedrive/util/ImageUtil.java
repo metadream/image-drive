@@ -15,8 +15,8 @@ import net.coobird.thumbnailator.Thumbnails;
  */
 public class ImageUtil {
 
-    // Resize image
-    public static BufferedImage resize(BufferedImage srcImage, int size) {
+    // Resize image by native (Fast but low quality)
+    public static BufferedImage resizeByNative(BufferedImage srcImage, int size) {
         int width = srcImage.getWidth();
         int height = srcImage.getHeight();
         double scale = (double) width / height;
@@ -28,11 +28,11 @@ public class ImageUtil {
             height = size;
             width = (int) (size * scale);
         }
-        return resize(srcImage, width, height);
+        return resizeByNative(srcImage, width, height);
     }
 
-    // Resize image (Fast but low quality)
-    public static BufferedImage resize(BufferedImage srcImage, int width, int height) {
+    // Resize image by native (Fast but low quality)
+    public static BufferedImage resizeByNative(BufferedImage srcImage, int width, int height) {
         BufferedImage resizedImage = new BufferedImage(width, height,
             (srcImage.getTransparency() == Transparency.OPAQUE ? BufferedImage.TYPE_INT_RGB
                 : BufferedImage.TYPE_INT_ARGB));
@@ -42,9 +42,9 @@ public class ImageUtil {
         return resizedImage;
     }
 
-    // Resize image (Slower speed but higher quality)
-    public static BufferedImage resize(String srcPath, int size) throws IOException {
-        return Thumbnails.of(srcPath).size(size, size).outputQuality(0.9).asBufferedImage();
+    // Resize image by thumbnailator (Slower speed but higher quality)
+    public static BufferedImage resizeByThumbnailator(BufferedImage srcImage, int size) throws IOException {
+        return Thumbnails.of(srcImage).size(size, size).outputQuality(0.9).asBufferedImage();
     }
 
 }
