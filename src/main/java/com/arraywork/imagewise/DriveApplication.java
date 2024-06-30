@@ -1,4 +1,4 @@
-package com.arraywork.imagedrive;
+package com.arraywork.imagewise;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;

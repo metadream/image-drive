@@ -1,4 +1,4 @@
-package com.arraywork.imagedrive.util;
+package com.arraywork.imagewise.util;
 
 import java.awt.Graphics2D;
 import java.awt.Transparency;

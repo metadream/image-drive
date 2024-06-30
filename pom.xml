@@ -10,10 +10,10 @@
     </parent>
 
     <groupId>com.arraywork</groupId>
-    <artifactId>image-drive</artifactId>
+    <artifactId>imagewise</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>image-drive</name>
-    <description>Image Drive</description>
+    <name>imagewise</name>
+    <description>Imagewise</description>
     <properties>
         <java.version>17</java.version>
     </properties>

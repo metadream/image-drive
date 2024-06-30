@@ -1,4 +1,4 @@
-package com.arraywork.imagedrive.controller;
+package com.arraywork.imagewise.controller;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -8,10 +8,10 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.arraywork.imagedrive.entity.Catalog;
-import com.arraywork.imagedrive.entity.ImageObject;
-import com.arraywork.imagedrive.entity.PageInfo;
-import com.arraywork.imagedrive.service.DriveService;
+import com.arraywork.imagewise.entity.Catalog;
+import com.arraywork.imagewise.entity.ImageObject;
+import com.arraywork.imagewise.entity.PageInfo;
+import com.arraywork.imagewise.service.DriveService;
 import com.arraywork.springforce.StaticResourceHandler;
 import com.arraywork.springforce.util.Pagination;
 import com.arraywork.springforce.util.Strings;

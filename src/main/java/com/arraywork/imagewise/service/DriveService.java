@@ -1,4 +1,4 @@
-package com.arraywork.imagedrive.service;
+package com.arraywork.imagewise.service;
 
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -17,14 +17,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.StopWatch;
 
-import com.arraywork.imagedrive.entity.Catalog;
-import com.arraywork.imagedrive.entity.ImageObject;
-import com.arraywork.imagedrive.entity.PageInfo;
-import com.arraywork.imagedrive.repo.CatalogRepo;
-import com.arraywork.imagedrive.repo.CatalogSpec;
-import com.arraywork.imagedrive.util.AesUtil;
-import com.arraywork.imagedrive.util.ImageInfo;
-import com.arraywork.imagedrive.util.ImageUtil;
+import com.arraywork.imagewise.entity.Catalog;
+import com.arraywork.imagewise.entity.ImageObject;
+import com.arraywork.imagewise.entity.PageInfo;
+import com.arraywork.imagewise.repo.CatalogRepo;
+import com.arraywork.imagewise.repo.CatalogSpec;
+import com.arraywork.imagewise.util.AesUtil;
+import com.arraywork.imagewise.util.ImageInfo;
+import com.arraywork.imagewise.util.ImageUtil;
 import com.arraywork.springforce.util.Arrays;
 import com.arraywork.springforce.util.Numbers;
 import com.arraywork.springforce.util.Pagination;

@@ -1,4 +1,4 @@
-package com.arraywork.imagedrive.service;
+package com.arraywork.imagewise.service;
 
 import java.io.File;
 

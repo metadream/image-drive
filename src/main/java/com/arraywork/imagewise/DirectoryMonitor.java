@@ -1,9 +1,9 @@
-package com.arraywork.imagedrive;
+package com.arraywork.imagewise;
 
 import org.apache.commons.io.monitor.FileAlterationMonitor;
 import org.apache.commons.io.monitor.FileAlterationObserver;
 
-import com.arraywork.imagedrive.service.DirectoryListener;
+import com.arraywork.imagewise.service.DirectoryListener;
 
 /**
  * Directory Monitor

@@ -1,4 +1,4 @@
-package com.arraywork.imagedrive.repo;
+package com.arraywork.imagewise.repo;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -6,8 +6,8 @@ import java.util.List;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.StringUtils;
 
-import com.arraywork.imagedrive.entity.Catalog;
-import com.arraywork.imagedrive.entity.Rating;
+import com.arraywork.imagewise.entity.Catalog;
+import com.arraywork.imagewise.entity.Rating;
 import com.arraywork.springforce.util.Arrays;
 
 import jakarta.persistence.criteria.CriteriaBuilder;

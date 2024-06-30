@@ -1,4 +1,4 @@
-package com.arraywork.imagedrive.entity;
+package com.arraywork.imagewise.entity;
 
 import lombok.Data;
 

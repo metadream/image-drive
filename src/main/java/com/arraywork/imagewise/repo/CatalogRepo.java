@@ -1,9 +1,9 @@
-package com.arraywork.imagedrive.repo;
+package com.arraywork.imagewise.repo;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
-import com.arraywork.imagedrive.entity.Catalog;
+import com.arraywork.imagewise.entity.Catalog;
 
 /**
  * Catalog Repository
